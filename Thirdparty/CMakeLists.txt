@@ -1,0 +1,12 @@
+add_subdirectory(DBoW2)
+add_subdirectory(g2o)
+
+set(BUILD_EXTERN_GLEW OFF)
+set(BUILD_EXTERN_LIBJPEG OFF)
+set(BUILD_EXTERN_LIBPNG OFF)
+set(MSVC_USE_STATIC_CRT OFF)
+set(BUILD_SHARED_LIBS ON)
+set(BUILD_TESTS OFF)
+set(BUILD_TOOLS OFF)
+set(BUILD_EXAMPLES OFF)
+add_subdirectory(Pangolin)

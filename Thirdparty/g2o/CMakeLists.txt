@@ -13,7 +13,7 @@ endif()
 
 message(STATUS "BUILD TYPE:" ${CMAKE_BUILD_TYPE})
 
-set(G2O_LIB_TYPE SHARED)
+set(G2O_LIB_TYPE STATIC)
 
 # There seems to be an issue with MSVC8 see
 # http://eigen.tuxfamily.org/bz/show_bug.cgi?id=83
@@ -24,9 +24,6 @@ endif(MSVC90)
 
 # Set the output directory for the build executables and libraries
 if(WIN32)
-  set(g2o_LIBRARY_OUTPUT_DIRECTORY ${g2o_SOURCE_DIR}/bin
-      CACHE PATH "Target for the libraries")
-else(WIN32)
   set(g2o_LIBRARY_OUTPUT_DIRECTORY ${g2o_SOURCE_DIR}/lib
       CACHE PATH "Target for the libraries")
 endif(WIN32)

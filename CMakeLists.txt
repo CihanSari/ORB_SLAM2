@@ -7,12 +7,12 @@ endif()
 
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3 -march=native")
-
-# Check C++11 or C++0x support
 cmake_policy(SET CMP0054 NEW)
 if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3 -march=native")
+
+  # Check C++11 or C++0x support
   include(CheckCXXCompilerFlag)
   check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
   check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
@@ -30,6 +30,8 @@ if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler."
       )
   endif()
+else()
+  add_definitions(-DCOMPILEDWITHC11 -DWIN32_LEAN_AND_MEAN -DNOMINMAX)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
@@ -46,12 +48,16 @@ if(NOT OpenCV_FOUND)
 endif()
 
 find_package(Eigen3 3.1.0 REQUIRED)
-find_package(Pangolin REQUIRED)
+add_subdirectory(Thirdparty)
+
+# find_package(Pangolin REQUIRED)
+# Pangolin dependencies (static)
+find_package(GLEW REQUIRED QUIET)
+find_package(OpenGL REQUIRED QUIET)
 
 include_directories(${PROJECT_SOURCE_DIR}
                     ${PROJECT_SOURCE_DIR}/include
-                    ${EIGEN3_INCLUDE_DIR}
-                    ${Pangolin_INCLUDE_DIRS})
+                    ${EIGEN3_INCLUDE_DIR})
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
@@ -76,15 +82,17 @@ add_library(${PROJECT_NAME}
             src/Sim3Solver.cc
             src/Initializer.cc
             src/Viewer.cc)
+cmake_policy(SET CMP0023 NEW)
 
-target_link_libraries(
-  ${PROJECT_NAME}
-  ${OpenCV_LIBS}
-  ${EIGEN3_LIBS}
-  ${Pangolin_LIBRARIES}
-  ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libORB_SLAM2-DBoW2.so
-  ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libORB_SLAM2-g2o.so)
-
+target_link_libraries(${PROJECT_NAME}
+                      PUBLIC ${OpenCV_LIBS}
+                             ${EIGEN3_LIBS}
+                             pangolin
+                             DBoW2
+                             g2o
+                             ${OPENGL_LIBRARIES}
+                             ${OPENGL_egl_LIBRARY}
+                             ${GLEW_LIBRARY})
 # Install
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
